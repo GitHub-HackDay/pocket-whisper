@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Pocket Whisper</string>
+    
+    <!-- Main Screen -->
+    <string name="home_title">Pocket Whisper</string>
+    <string name="listening_on">Listening ON</string>
+    <string name="listening_off">Listening OFF</string>
+    <string name="tap_to_start">Tap to start listening</string>
+    <string name="listening_active">Listening for speech...</string>
+    
+    <!-- Stats -->
+    <string name="stats_title">Today\'s Stats</string>
+    <string name="suggestions_count">Suggestions</string>
+    <string name="corrections_count">Corrections</string>
+    <string name="correction_rate">Correction Rate</string>
+    <string name="avg_latency">Avg Latency</string>
+    
+    <!-- Permissions -->
+    <string name="permission_microphone">Microphone</string>
+    <string name="permission_accessibility">Accessibility</string>
+    <string name="permission_notifications">Notifications</string>
+    <string name="permission_granted">Granted</string>
+    <string name="permission_denied">Not Granted</string>
+    <string name="request_permissions">Request Permissions</string>
+    
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="output_mode">Output Mode</string>
+    <string name="output_speaker">Speaker</string>
+    <string name="output_earpiece">Earpiece</string>
+    <string name="output_silent">Silent (Insert Only)</string>
+    <string name="sensitivity">Sensitivity</string>
+    <string name="confidence_threshold">Confidence Threshold</string>
+    
+    <!-- Accessibility Service -->
+    <string name="accessibility_service_description">
+        Allows Pocket Whisper to automatically insert suggested words into text fields.
+        This service reads the focused text field and inserts suggestions when triggered.
+    </string>
+    
+    <!-- Notifications -->
+    <string name="notification_listening_title">Pocket Whisper</string>
+    <string name="notification_listening_text">Listening for speech...</string>
+    <string name="notification_channel_name">Pocket Whisper Listening</string>
+    <string name="notification_channel_description">Active when listening for speech</string>
+    
+    <!-- Errors -->
+    <string name="error_model_load">Failed to load model: %1$s</string>
+    <string name="error_permission_denied">Permission denied: %1$s</string>
+    <string name="error_mic_unavailable">Microphone unavailable</string>
+    <string name="error_accessibility_not_enabled">Accessibility service not enabled</string>
+</resources>
+

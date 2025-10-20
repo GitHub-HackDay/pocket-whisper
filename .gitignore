@@ -1,0 +1,45 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Environment
+.env
+
+# IDE
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing & Linting
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Android & Gradle
+*.iml
+.gradle/
+local.properties
+.externalNativeBuild
+.cxx
+app/build/
+app/.cxx/
+captures/
+*.apk
+*.aab
+*.dex
+
+# Logs
+*.log
