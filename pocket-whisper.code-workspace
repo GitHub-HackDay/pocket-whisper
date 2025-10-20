@@ -1,0 +1,203 @@
+{
+  "folders": [
+    {
+      "path": ".",
+      "name": "Pocket Whisper - Speech Completion"
+    }
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": "/usr/local/bin/python3",
+    "python.terminal.activateEnvironment": true,
+    "files.watcherExclude": {
+      "**/node_modules/**": true,
+      "**/build/**": true,
+      "**/dist/**": true,
+      "**/.gradle/**": true,
+      "**/logs/**": true,
+      "**/temp/**": true,
+      "**/data/audio/**": true
+    },
+    "files.associations": {
+      "*.pte": "binary",
+      "*.pt": "python",
+      "*.wav": "audio",
+      "*.mp3": "audio"
+    },
+    "editor.formatOnSave": true,
+    "python.formatting.provider": "black",
+    "python.linting.enabled": true,
+    "python.linting.flake8Enabled": true,
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "gradle.nestedProjects": true
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-python.python",
+      "ms-python.black-formatter",
+      "ms-python.flake8",
+      "redhat.java",
+      "vscjava.vscode-gradle",
+      "ms-vscode.vscode-json",
+      "ms-vscode.vscode-typescript-next",
+      "bradlc.vscode-tailwindcss"
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Setup Pocket Whisper Environment",
+        "type": "shell",
+        "command": "python",
+        "args": [
+          "scripts/setup_workspace.py"
+        ],
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        }
+      },
+      {
+        "label": "Create Android Project",
+        "type": "shell",
+        "command": "python",
+        "args": [
+          "scripts/create_android_project.py"
+        ],
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        }
+      },
+      {
+        "label": "Convert ASR Model",
+        "type": "shell",
+        "command": "python",
+        "args": [
+          "scripts/model_converter.py",
+          "--action",
+          "convert_asr"
+        ],
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        }
+      },
+      {
+        "label": "Convert Completion Model",
+        "type": "shell",
+        "command": "python",
+        "args": [
+          "scripts/model_converter.py",
+          "--action",
+          "convert_completion"
+        ],
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        }
+      },
+      {
+        "label": "Start Development Server",
+        "type": "shell",
+        "command": "python",
+        "args": [
+          "scripts/dev_server.py"
+        ],
+        "group": "build",
+        "isBackground": true,
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        }
+      },
+      {
+        "label": "Deploy to Samsung S25 Ultra",
+        "type": "shell",
+        "command": "python",
+        "args": [
+          "scripts/device_deploy.py",
+          "--action",
+          "deploy"
+        ],
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        }
+      },
+      {
+        "label": "Test Speech Completion",
+        "type": "shell",
+        "command": "python",
+        "args": [
+          "scripts/test_speech_completion.py"
+        ],
+        "group": "test",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        }
+      }
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Python: Current File",
+        "type": "python",
+        "request": "launch",
+        "program": "${file}",
+        "console": "integratedTerminal",
+        "justMyCode": true
+      },
+      {
+        "name": "Python: Model Converter",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder}/scripts/model_converter.py",
+        "args": [
+          "--action",
+          "convert_asr"
+        ],
+        "console": "integratedTerminal",
+        "justMyCode": true
+      },
+      {
+        "name": "Python: Development Server",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder}/scripts/dev_server.py",
+        "console": "integratedTerminal",
+        "justMyCode": true
+      },
+      {
+        "name": "Python: Test Speech Completion",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder}/scripts/test_speech_completion.py",
+        "console": "integratedTerminal",
+        "justMyCode": true
+      }
+    ]
+  }
+}

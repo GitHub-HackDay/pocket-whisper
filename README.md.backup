@@ -1,0 +1,224 @@
+# Pocket Whisper 🎤
+
+**On-Device Speech Completion for Samsung S25 Ultra**
+
+Pocket Whisper is an ExecuTorch-powered Android app that helps users complete their sentences when they stumble or forget words during speech. Using on-device ASR (Automatic Speech Recognition) and local context prediction, it provides real-time word suggestions without sending data to the cloud.
+
+## 🎯 Example Usage
+
+**User says:** "Can you please _ugh / like (pause)__ me the salt?"  
+**App fills:** "pass."
+
+**User says:** "I need to _um... what's the word..._ my car keys."  
+**App fills:** "find."
+
+## 🚀 Key Features
+
+- **On-Device Processing**: All speech recognition and prediction happens locally
+- **Real-Time Completion**: Instant word suggestions as you speak
+- **Privacy-First**: No data leaves your device
+- **ExecuTorch Optimized**: Optimized for Samsung S25 Ultra's hardware
+- **Multiple ASR Models**: Support for Whisper Tiny and Qualcomm speech models
+- **Context-Aware**: Uses local context to predict the most likely missing words
+
+## 🏗️ Architecture
+
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   Audio Input   │───▶│   ASR Model      │───▶│  Text Analysis  │
+│   (Microphone)  │    │   (Whisper/QC)   │    │  & Prediction   │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+                                │                        │
+                                ▼                        ▼
+                       ┌──────────────────┐    ┌─────────────────┐
+                       │  ExecuTorch      │    │  Word Suggestion│
+                       │  Runtime         │    │  Display        │
+                       └──────────────────┘    └─────────────────┘
+```
+
+## 📱 Supported Models
+
+### ASR Models
+- **Whisper Tiny**: Fast, lightweight speech recognition
+- **Qualcomm Speech Model**: Hardware-optimized for Snapdragon chips
+- **Custom Models**: Support for fine-tuned models
+
+### Text Completion Models
+- **Local Language Models**: Small, efficient models for word prediction
+- **Context-Aware Models**: Models trained on conversational patterns
+- **Domain-Specific Models**: Specialized models for different use cases
+
+## 🛠️ Development Setup
+
+### Prerequisites
+- Python 3.8+
+- Android Studio
+- Samsung S25 Ultra (or compatible Android device)
+- USB Debugging enabled
+
+### Quick Start
+```bash
+# Clone and setup
+git clone <repository>
+cd pocket-whisper
+
+# Setup environment
+python scripts/setup_workspace.py
+
+# Create Android project
+python scripts/create_android_project.py
+
+# Convert models to ExecuTorch
+python scripts/model_converter.py --action create_test
+
+# Start development server
+python scripts/dev_server.py
+
+# Deploy to device
+python scripts/device_deploy.py --action deploy
+```
+
+## 📁 Project Structure
+
+```
+pocket-whisper/
+├── android_app/              # Android application
+├── models/                   # ExecuTorch model files
+│   ├── asr/                 # ASR models (.pte)
+│   ├── completion/          # Text completion models (.pte)
+│   └── metadata/            # Model metadata
+├── scripts/                 # Development scripts
+│   ├── setup_workspace.py
+│   ├── create_android_project.py
+│   ├── model_converter.py
+│   ├── dev_server.py
+│   └── device_deploy.py
+├── src/                     # Python source code
+│   ├── asr/                # ASR processing
+│   ├── completion/         # Text completion
+│   ├── audio/              # Audio processing
+│   └── utils/              # Utilities
+├── data/                    # Training and test data
+├── notebooks/               # Jupyter notebooks
+└── tests/                   # Unit tests
+```
+
+## 🎤 Usage Examples
+
+### Basic Speech Completion
+```python
+from src.asr import WhisperASR
+from src.completion import WordPredictor
+
+# Initialize components
+asr = WhisperASR(model_path="models/asr/whisper_tiny.pte")
+predictor = WordPredictor(model_path="models/completion/context_model.pte")
+
+# Process speech
+audio = record_audio()
+transcript = asr.transcribe(audio)
+completion = predictor.predict_missing_words(transcript)
+
+print(f"Original: {transcript}")
+print(f"Completed: {completion}")
+```
+
+### Real-Time Processing
+```python
+# Continuous speech processing
+for audio_chunk in audio_stream:
+    transcript = asr.transcribe(audio_chunk)
+    if has_missing_words(transcript):
+        suggestions = predictor.predict_missing_words(transcript)
+        display_suggestions(suggestions)
+```
+
+## 🔧 Model Conversion
+
+### Convert Whisper to ExecuTorch
+```bash
+python scripts/model_converter.py \
+    --action convert \
+    --model_path models/whisper-tiny.pt \
+    --output_path models/asr/whisper_tiny.pte \
+    --backend xnnpack
+```
+
+### Convert Text Completion Model
+```bash
+python scripts/model_converter.py \
+    --action convert \
+    --model_path models/completion_model.pt \
+    --output_path models/completion/context_model.pte \
+    --backend xnnpack
+```
+
+## 📊 Performance Optimization
+
+### For Samsung S25 Ultra
+- **Architecture**: `arm64-v8a` optimized
+- **Backend**: XNNPACK for CPU, Vulkan for GPU
+- **Memory**: Optimized for mobile constraints
+- **Battery**: Efficient processing to minimize power usage
+
+### Model Optimization
+- **Quantization**: INT8 quantization for faster inference
+- **Pruning**: Remove unnecessary model weights
+- **Knowledge Distillation**: Smaller models trained from larger ones
+
+## 🧪 Testing
+
+### Unit Tests
+```bash
+python -m pytest tests/
+```
+
+### Device Testing
+```bash
+# Test on connected device
+python scripts/device_deploy.py --action test
+
+# View device logs
+python scripts/device_deploy.py --action logs
+```
+
+### Performance Testing
+```bash
+# Benchmark models
+python scripts/benchmark_models.py
+
+# Test latency
+python scripts/test_latency.py
+```
+
+## 📚 Research & Development
+
+### Notebooks
+- `notebooks/asr_experiments.ipynb` - ASR model experiments
+- `notebooks/completion_models.ipynb` - Text completion research
+- `notebooks/optimization.ipynb` - Model optimization techniques
+
+### Datasets
+- Speech completion datasets
+- Conversational speech data
+- Domain-specific training data
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test on Samsung S25 Ultra
+5. Submit a pull request
+
+## 📄 License
+
+MIT License - see LICENSE file for details
+
+## 🙏 Acknowledgments
+
+- OpenAI Whisper team for the ASR model
+- ExecuTorch team for mobile optimization
+- Qualcomm for hardware-optimized models
+- Samsung for device optimization support
+
