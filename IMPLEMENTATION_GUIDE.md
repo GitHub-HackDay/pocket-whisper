@@ -94,45 +94,55 @@ pip freeze > requirements-ml.txt
 - `transformers==4.36.0`: Stable version with Whisper & Qwen models
 - `executorch`: Required to export `.pte` files
 
-### Step 1.3: Create Android Project
+### Step 1.3: Install Android SDK Command-Line Tools
+
+**Note**: You don't need Android Studio! Use command-line tools only for faster setup.
 
 ```bash
-# Using Android Studio GUI:
-# 1. New Project → Empty Compose Activity
-# 2. Name: PocketWhisper
-# 3. Package: com.pocketwhisper.app
-# 4. Language: Kotlin
-# 5. Minimum SDK: API 31 (Android 12) - S25 Ultra runs Android 15
+# Install Android SDK tools via Homebrew (macOS)
+brew install --cask android-commandlinetools android-platform-tools
+
+# Verify installation
+adb --version
 ```
 
-### Step 1.4: Add ExecuTorch Android Dependencies
+### Step 1.4: Build and Deploy the App
 
-Edit `app/build.gradle.kts`:
+**Note**: The Android project structure is already created in the repo.
 
-```kotlin
-dependencies {
-    // ExecuTorch runtime for Android
-    implementation("org.pytorch:executorch:0.3.0")
-    
-    // Compose UI
-    implementation(platform("androidx.compose:compose-bom:2024.01.00"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.material3:material3")
-    
-    // Room database
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
-    ksp("androidx.room:room-compiler:2.6.1")
-    
-    // DataStore
-    implementation("androidx.datastore:datastore-preferences:1.0.0")
-    
-    // Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-}
+```bash
+cd /Users/kumar/Documents/Projects/MetaHack/pocket-whisper
+
+# Create local.properties with SDK path
+echo "sdk.dir=$(brew --prefix)/share/android-commandlinetools" > local.properties
+
+# Build APK (first time takes ~1-2 minutes)
+./gradlew assembleDebug
+
+# Connect to your S25 Ultra wirelessly (if already set up)
+cd ../android-dev && ./connect_wireless.sh
+cd ../pocket-whisper
+
+# Or connect via USB and enable USB debugging on phone
+
+# Install app on phone
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+
+# Launch the app
+adb shell am start -n com.pocketwhisper.app/.MainActivity
+
+# View logs
+adb logcat -s PocketWhisper ModelLoader
 ```
 
-**Checkpoint**: Run the empty app on your S25 Ultra. You should see a blank screen.
+**Quick rebuild & deploy** (subsequent times):
+```bash
+./build_and_deploy.sh  # Automated script for build → install → launch → logs
+```
+
+**Checkpoint**: App runs on your S25 Ultra showing Phase 1 test screen.
+
+**Note on ExecuTorch**: For Phase 1, ExecuTorch dependency is commented out since we don't have models yet. It will be added in Phase 2 when we export `.pte` models.
 
 ---
 
@@ -228,16 +238,16 @@ python export_vad.py
 **What it does**: Converts audio → text  
 **Why we need it**: Get transcription to feed to LLM
 
-#### Model Choice: Distil-Whisper Small En
-- **Size**: 244 MB (quantized to int8)
+#### Model Choice: Wav2Vec2-base-960h
+- **Size**: 90 MB (quantized to int8)
 - **Speed**: 80-120ms per 1-second audio chunk
-- **Accuracy**: 95% WER (Word Error Rate) on English
+- **Accuracy**: 95%+ WER (Word Error Rate) on English
 - **Why this one**: 
-  - ✅ Faster than base Whisper (6x speedup)
-  - ✅ Still accurate enough
-  - ✅ Designed for streaming
-  - ❌ NOT "tiny" (too inaccurate)
-  - ❌ NOT "medium/large" (too slow)
+  - ✅ Avoids Whisper's complex decoder problem
+  - ✅ Direct CTC decoding (non-autoregressive)
+  - ✅ Better for real-time streaming
+  - ✅ Simpler post-processing
+  - ❌ NOT Whisper (decoder too complex for real-time)
 
 #### Download & Export
 
@@ -245,13 +255,13 @@ Create `export/export_asr.py`:
 
 ```python
 import torch
-from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor
+from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
 from pathlib import Path
 
-def export_distil_whisper():
-    """Export Distil-Whisper Small model for streaming ASR."""
+def export_wav2vec2():
+    """Export Wav2Vec2-base model for streaming ASR."""
     
-    model_id = "distil-whisper/distil-small.en"
+    model_id = "facebook/wav2vec2-base-960h"
     
     print(f"Loading {model_id}...")
     model = AutoModelForSpeechSeq2Seq.from_pretrained(
@@ -329,12 +339,12 @@ python export_asr.py
 
 **Expected time**: 5-10 minutes (downloading + exporting)
 
-**Why Distil-Whisper Small and not others?**
-- ❌ Whisper Tiny: Only 13% WER → too many errors → bad suggestions
-- ❌ Whisper Base: 50% slower, only 2% better accuracy
+**Why Wav2Vec2-base and not others?**
+- ❌ Whisper Models: Complex autoregressive decoder, harder for real-time
+- ❌ Whisper Tiny: Poor accuracy, would lead to bad suggestions
 - ❌ OpenAI Whisper Large: 3GB+, 5+ seconds per chunk
 - ❌ Google Speech API: Cloud-based (we need on-device)
-- ✅ Distil-Whisper Small: Perfect balance for real-time
+- ✅ Wav2Vec2-base: CTC decoder, streaming-friendly, 95%+ accuracy
 
 ---
 
@@ -487,10 +497,10 @@ Run this to verify all models exported:
 ls -lh ../app/src/main/assets/
 
 # Expected output:
-# vad_silero.pte                    (~1.5 MB)
-# asr_distil_whisper_small_int8.pte (~244 MB)
-# llm_qwen_0.5b_int8.pte           (~500 MB)
-# Total: ~746 MB
+# vad_silero_v4.pte                 (~1.5 MB)
+# asr_wav2vec2_base_int8.pte        (~90 MB)
+# llm_qwen2_0.5b_int8.pte           (~500 MB)
+# Total: ~592 MB
 ```
 
 If you see these files, ✅ **Phase 2 Complete!**
@@ -674,7 +684,7 @@ class MainActivity : ComponentActivity() {
                     status = "Loading VAD..."
                     try {
                         withContext(Dispatchers.IO) {
-                            modelLoader.loadModel("vad_silero.pte")
+                            modelLoader.loadModel("vad_silero_v4.pte")
                         }
                         status = "✅ VAD loaded successfully!"
                     } catch (e: Exception) {
@@ -921,7 +931,7 @@ class ListenForegroundService : Service() {
         
         // Load VAD model
         val modelLoader = ModelLoader(this)
-        val vadModule = modelLoader.loadModel("vad_silero.pte")
+        val vadModule = modelLoader.loadModel("vad_silero_v4.pte")
         vadDetector = VadDetector(vadModule)
         
         // Initialize audio capture
@@ -1180,8 +1190,8 @@ class ListenForegroundService : Service() {
         
         // Load models
         val modelLoader = ModelLoader(this)
-        val vadModule = modelLoader.loadModel("vad_silero.pte")
-        val asrModule = modelLoader.loadModel("asr_distil_whisper_small_int8.pte")
+        val vadModule = modelLoader.loadModel("vad_silero_v4.pte")
+        val asrModule = modelLoader.loadModel("asr_wav2vec2_base_int8.pte")
         
         vadDetector = VadDetector(vadModule)
         asrSession = AsrSession(this, asrModule)
@@ -1340,7 +1350,7 @@ fun TestLlmScreen() {
         Button(onClick = {
             scope.launch {
                 val modelLoader = ModelLoader(context)
-                val llmModule = modelLoader.loadModel("llm_qwen_0.5b_int8.pte")
+                val llmModule = modelLoader.loadModel("llm_qwen2_0.5b_int8.pte")
                 val llmSession = LlmSession(context, llmModule)
                 
                 val (word, confidence) = llmSession.generateNextWord("Could you please")
@@ -1692,9 +1702,9 @@ class ListenForegroundService : Service() {
         
         // Load all models
         val modelLoader = ModelLoader(this)
-        val vadModule = modelLoader.loadModel("vad_silero.pte")
-        val asrModule = modelLoader.loadModel("asr_distil_whisper_small_int8.pte")
-        val llmModule = modelLoader.loadModel("llm_qwen_0.5b_int8.pte")
+        val vadModule = modelLoader.loadModel("vad_silero_v4.pte")
+        val asrModule = modelLoader.loadModel("asr_wav2vec2_base_int8.pte")
+        val llmModule = modelLoader.loadModel("llm_qwen2_0.5b_int8.pte")
         
         vadDetector = VadDetector(vadModule)
         asrSession = AsrSession(this, asrModule)

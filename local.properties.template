@@ -1,0 +1,18 @@
+
+## This file must *NOT* be checked into Version Control Systems,
+# as it contains information specific to your local configuration.
+#
+# Location of the Android SDK. This will be auto-detected by Android Studio.
+# If not, copy this file to 'local.properties' and set the correct path.
+
+# For macOS (default location):
+sdk.dir=/Users/kumar/Library/Android/sdk
+
+# Alternative locations (uncomment if needed):
+# sdk.dir=/Users/YOUR_USERNAME/Library/Android/sdk
+# sdk.dir=/opt/android-sdk
+
+# To find your SDK path in Android Studio:
+# Preferences → Appearance & Behavior → System Settings → Android SDK
+# Look for "Android SDK Location" at the top
+

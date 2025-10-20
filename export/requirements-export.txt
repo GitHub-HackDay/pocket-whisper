@@ -1,0 +1,25 @@
+# Model Export Requirements for Pocket Whisper
+# Python 3.10+ recommended
+
+# Core PyTorch and ExecuTorch
+torch==2.5.0
+torchaudio==2.5.0
+torchvision==0.20.0
+executorch==0.2.0
+
+# Quantization
+torchao==0.1.0
+
+# Model libraries
+transformers==4.36.0
+datasets==2.15.0
+accelerate==0.24.0
+
+# Audio processing
+librosa==0.10.1
+soundfile==0.12.1
+scipy==1.11.4
+
+# Utilities
+numpy==1.24.4
+tqdm==4.66.1
